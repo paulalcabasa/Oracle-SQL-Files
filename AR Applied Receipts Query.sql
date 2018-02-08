@@ -1,0 +1,61 @@
+SELECT CR.RECEIPT_NUMBER,
+            RCTA.TRX_NUMBER,
+            APP.AMOUNT_APPLIED,
+            APP.APPLY_DATE,
+            APP.GL_DATE
+FROM AR_RECEIVABLE_APPLICATIONS_ALL APP,
+          AR_CASH_RECEIPTS_ALL CR,
+          RA_CUSTOMER_TRX_ALL RCTA
+--          XXIPC_CUSTOMER_DETAIL_V cust_bill_to,
+--          XXIPC_CUSTOMER_DETAIL_V cust_ship_to
+WHERE 1 = 1
+            AND APP.DISPLAY = 'Y'
+            AND APP.CASH_RECEIPT_ID = CR.CASH_RECEIPT_ID
+           AND RCTA.CUSTOMER_TRX_ID = APP.APPLIED_CUSTOMER_TRX_ID
+ AND RCTA.TRX_NUMBER IN ('980211744');
+--            AND cust_bill_to.cust_account_id(+) =  rcta.BILL_TO_CUSTOMER_ID
+--            AND cust_bill_to.site_use_id(+) = rcta.BILL_TO_SITE_USE_ID
+--            AND cust_ship_to.cust_account_id(+) =  rcta.SHIP_TO_CUSTOMER_ID
+--            AND cust_ship_to.site_use_id(+) = rcta.SHIP_TO_SITE_USE_ID
+     --       AND CR.RECEIPT_NUMBER = '59812';
+       ;
+
+
+/*
+
+    TO_NUMBER (
+             DECODE (SIGN (APP.APPLIED_PAYMENT_SCHEDULE_ID),
+                     -1, NULL,
+                     PS_INV.TERMS_SEQUENCE_NUMBER))
+             INSTALLMENT,
+             
+FROM AR_RECEIVABLE_APPLICATIONS APP,
+          AR_CASH_RECEIPTS CR,
+          AR_PAYMENT_SCHEDULES PS_INV,
+          HZ_CUST_ACCOUNTS CUST,
+          HZ_PARTIES PARTY,
+          RA_CUSTOMER_TRX CT,
+          RA_CUST_TRX_TYPES CTT,
+          RA_CUSTOMER_TRX_LINES CTL,
+          RA_BATCH_SOURCES BS,
+          HZ_CUST_SITE_USES SU,
+          AR_CONS_INV CI,
+          AR_LOOKUPS L_CLASS,
+          AR_RECEIVABLES_TRX ART
+          
+           WHERE     APP.DISPLAY = 'Y'
+          AND APP.CASH_RECEIPT_ID = CR.CASH_RECEIPT_ID
+          AND CT.CUSTOMER_TRX_ID(+) = PS_INV.CUSTOMER_TRX_ID
+          AND BS.BATCH_SOURCE_ID(+) = CT.BATCH_SOURCE_ID
+          AND CTT.CUST_TRX_TYPE_ID(+) = PS_INV.CUST_TRX_TYPE_ID
+          AND CUST.CUST_ACCOUNT_ID(+) = PS_INV.CUSTOMER_ID
+          AND CUST.PARTY_ID = PARTY.PARTY_ID(+)
+          AND SU.SITE_USE_ID(+) = PS_INV.CUSTOMER_SITE_USE_ID
+          AND CTL.CUSTOMER_TRX_LINE_ID(+) = APP.APPLIED_CUSTOMER_TRX_LINE_ID
+          AND PS_INV.CLASS = L_CLASS.LOOKUP_CODE
+          AND L_CLASS.LOOKUP_TYPE = 'INV/CM'
+          AND CI.CONS_INV_ID(+) = PS_INV.CONS_INV_ID
+          AND APP.APPLIED_PAYMENT_SCHEDULE_ID = PS_INV.PAYMENT_SCHEDULE_ID
+          AND ART.RECEIVABLES_TRX_ID(+) = APP.RECEIVABLES_TRX_ID;
+
+*/

@@ -1,0 +1,2 @@
+select *
+from IFSAPP.GEN_LED_VOUCHER_ROW_UNION_QRY;

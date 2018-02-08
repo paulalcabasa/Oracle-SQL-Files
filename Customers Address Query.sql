@@ -1,0 +1,13 @@
+SELECT HCA.CUST_ACCOUNT_ID,
+            HCA.ACCOUNT_NUMBER,
+            HP.PARTY_NAME,
+            regexp_replace(HP.ADDRESS1,'DEALERS-PARTS|DEALERS-VEHICLE|DEALERS-OTHERS|DEALERS-FLEET')ADDRESS1,
+            HP.ADDRESS2
+FROM HZ_CUST_ACCOUNTS_ALL HCA,
+          HZ_PARTIES HP
+ WHERE 1 = 1
+            AND HP.PARTY_ID = HCA.PARTY_ID
+            AND HCA.ACCOUNT_NUMBER = 1748;
+            
+            
+            

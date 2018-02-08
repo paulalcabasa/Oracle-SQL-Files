@@ -1,0 +1,5 @@
+php - thb
+
+(select TO_CHAR(sysdate,'YYMM') || '-' || (max(NVL(substr(ATTRIBUTE6,6),0)) + 1) last_number from AP_INVOICES_INTERFACE)
+
+(select TO_CHAR(sysdate,'YYMM') || '-' || (FND_DOC_SEQ_368_S.nextval)  last_number from AP_INVOICES_INTERFACE)
