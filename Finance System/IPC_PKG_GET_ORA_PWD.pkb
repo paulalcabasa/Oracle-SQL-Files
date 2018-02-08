@@ -1,0 +1,19 @@
+--Package Specification
+CREATE OR REPLACE PACKAGE APPS.IPC_PKG_GET_ORA_PWD
+AS
+   FUNCTION decrypt (KEY IN VARCHAR2, VALUE IN VARCHAR2)
+      RETURN VARCHAR2;
+END IPC_PKG_GET_ORA_PWD;
+/
+
+CREATE OR REPLACE PACKAGE BODY APPS.IPC_PKG_GET_ORA_PWD
+AS
+   FUNCTION decrypt (KEY IN VARCHAR2, VALUE IN VARCHAR2)
+      RETURN VARCHAR2
+   AS
+      LANGUAGE JAVA
+      NAME 'oracle.apps.fnd.security.WebSessionManagerProc.decrypt(java.lang.String,java.lang.String) return java.lang.String';
+END IPC_PKG_GET_ORA_PWD;
+/
+
+IPC.IPC_PKG_GET_ORA_PWD
