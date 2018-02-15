@@ -17,8 +17,8 @@ from ar_cash_receipts_all acra
             ON hca.cust_account_id = acra.pay_from_customer
           INNER JOIN hz_parties hp
             ON hp.party_id = hca.party_id
-WHERE 1 = 1
-             and acra.receipt_date between  TO_DATE (:P_START_DATE, 'yyyy/mm/dd hh24:mi:ss') and TO_DATE (:P_END_DATE, 'yyyy/mm/dd hh24:mi:ss')
-             and acra.status <> 'REV'
-             and acra.TYPE = 'CASH';
+WHERE 1 = 1;
+--             and acra.receipt_date between  TO_DATE (:P_START_DATE, 'yyyy/mm/dd hh24:mi:ss') and TO_DATE (:P_END_DATE, 'yyyy/mm/dd hh24:mi:ss')
+--             and acra.status <> 'REV'
+--             and acra.TYPE = 'CASH';
   

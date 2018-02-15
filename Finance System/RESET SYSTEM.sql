@@ -25,8 +25,8 @@ SELECT ppf.person_id,
                 FROM per_people_f ppf LEFT JOIN fnd_user fu
                             ON PPF.PERSON_ID = fu.employee_id
                 WHERE 1= 1
-            --    and fu.user_name = '151107'             
-        and ppf.attribute3 LIKE '%FINANCE%'
+              and fu.user_name = '151107'             
+   --     and- ppf.attribute3 LIKE '%FINANCE%'
                  --        and ppf.effective_end_date = '31-DEC-4712'
                    --      and fu.end_date IS NULL
                 ORDER BY ppf.last_name,

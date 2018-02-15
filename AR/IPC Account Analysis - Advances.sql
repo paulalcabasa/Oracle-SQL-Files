@@ -1,7 +1,15 @@
-select *
+select 
+        regexp_replace(
+            REGEXP_REPLACE(
+                SUBSTR(gl_xla_data.header_description , LENGTH('Receipt Number - '),
+                INSTR(gl_xla_data.header_description, ' Document Number') ), '.+Receipt Number - (.+) Document Number.+', '\1', 1, 1
+            ), '[^0-9]', '') receipt_number,
+        substr(gl_xla_data.header_description,INSTR(gl_xla_data.header_description, 'Document Number - ') + 18, 11) receipt_document_no,
+        TRIM(substr(gl_xla_data.line_description,INSTR(gl_xla_data.line_description, 'Transaction Document Number') + LENGTH('Transaction Document Number'), 11)) invoice_no,
+        gl_xla_data.*
 from (
 (select 
-            gjh.doc_sequence_value voucher_no,  
+            gjh.doc_sequence_value voucher_no,
             gjh.je_source,
             gjh.je_category je_category_name,
             gjh.default_effective_date,
@@ -63,8 +71,9 @@ where 1 = 1
 --                                              AND TO_DATE (:P_PERIOD2,
 --                                                           'MM-YY')
             and gjh.default_effective_date between  TO_DATE (:P_START_DATE, 'yyyy/mm/dd hh24:mi:ss') and TO_DATE (:P_END_DATE, 'yyyy/mm/dd hh24:mi:ss')
-             and gcc.segment6 between NVL(:P_ACCOUNT_CODE_FROM,gcc.segment6) AND NVL(:P_ACCOUNT_CODE_TO,gcc.segment6)
-             AND nvl(gjl.accounted_dr,0) - nvl(gjl.accounted_cr,0) <> 0 
+            and gcc.segment6 IN ('84303','84300')
+            and gjh.je_source = 'Receivables'
+       --      AND nvl(gjl.accounted_dr,0) - nvl(gjl.accounted_cr,0) <> 0 
 --             and GJH.status = 'P'
             )
 
@@ -148,8 +157,9 @@ where 1 = 1
 --                                                           'MM-YY')
 --                                              AND TO_DATE (:P_PERIOD2,
 --                                                           'MM-YY')
-        and gcc.segment6 between NVL(:P_ACCOUNT_CODE_FROM,gcc.segment6) AND NVL(:P_ACCOUNT_CODE_TO,gcc.segment6)
-        and nvl(xal.accounted_dr,0) - nvl(xal.accounted_cr,0) <> 0
+         and gcc.segment6 IN ('84303','84300')
+         and xah.je_category_name IN ('Receipts','Misc Receipts')
+     --   and nvl(xal.accounted_dr,0) - nvl(xal.accounted_cr,0) <> 0
         )      
-);
+) gl_xla_data;
 

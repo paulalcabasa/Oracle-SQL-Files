@@ -1,13 +1,20 @@
-select *
+select 
+      CASE 
+            WHEN je_category_name = 'Adjustment' THEN trim(REGEXP_SUBSTR (header_description, '[^-]+', 1,3))
+            WHEN je_category_name = 'Debit Memos' THEN trim(REGEXP_SUBSTR (header_description, '[^-]+', 1,5))
+            WHEN je_category_name = 'Sales Invoices' THEN trim(REGEXP_SUBSTR (header_description, '[^-]+', 1,7))
+            WHEN je_category_name = 'Receipts' THEN substr(header_description,INSTR(header_description, 'Document Number - ') + 18, 11)
+            WHEN je_category_name = 'Credit Memos' THEN TRIM(NVL(REGEXP_SUBSTR (header_description, '[^-]+', 1,5),REGEXP_SUBSTR (header_description, '[^-]+', 1,4)))
+      END transaction_reference,
+      gl_xla_data.*
 from (
 (select 
-            gjh.doc_sequence_value voucher_no,  
+            gjh.doc_sequence_value voucher_no,
             gjh.je_source,
             gjh.je_category je_category_name,
             gjh.default_effective_date,
             gjh.posted_date,
             gjh.status,
---            null xla_line_number,
             gjl.je_line_num gl_line_number,
             null accounting_date,
             null gl_transfer_status_code,
@@ -31,10 +38,6 @@ from (
             gjl.accounted_dr,
             gjl.accounted_cr,
             nvl(gjl.accounted_dr,0) - nvl(gjl.accounted_cr,0) accounted_amount,
---            null unrounded_entered_dr,
---            null unrounded_entered_cr,
---            null unrounded_accounted_dr,
---            null unrounded_accounted_cr,
             null currency_code,
             null currency_conversion_date,
             null currency_conversion_rate,
@@ -58,14 +61,10 @@ from gl_je_headers gjh INNER JOIN gl_je_lines gjl
          LEFT JOIN ap_suppliers aps
              ON aps.segment1 = gjl.attribute1
 where 1 = 1
---            and   TO_DATE(TO_CHAR (gjh.default_effective_date,'MON-YY'),'MON-YY') BETWEEN    TO_DATE (:P_PERIOD,
---                                                           'MM-YY')
---                                              AND TO_DATE (:P_PERIOD2,
---                                                           'MM-YY')
             and gjh.default_effective_date between  TO_DATE (:P_START_DATE, 'yyyy/mm/dd hh24:mi:ss') and TO_DATE (:P_END_DATE, 'yyyy/mm/dd hh24:mi:ss')
-             and gcc.segment6 between NVL(:P_ACCOUNT_CODE_FROM,gcc.segment6) AND NVL(:P_ACCOUNT_CODE_TO,gcc.segment6)
-             AND nvl(gjl.accounted_dr,0) - nvl(gjl.accounted_cr,0) <> 0 
---             and GJH.status = 'P'
+            AND nvl(gjl.accounted_dr,0) - nvl(gjl.accounted_cr,0) <> 0 
+            and gcc.segment6 IN ('66904','63000')
+--            AND gjh.je_source = 'Receivables'
             )
 
     UNION
@@ -100,10 +99,6 @@ where 1 = 1
             xal.accounted_dr,
             xal.accounted_cr,
             nvl(xal.accounted_dr,0) - nvl(xal.accounted_cr,0) accounted_amount,
---            xdl.unrounded_entered_dr,
---            xdl.unrounded_entered_cr,
---            xdl.unrounded_accounted_dr,
---            xdl.unrounded_accounted_cr,
             xal.currency_code,
             xal.currency_conversion_date,
             xal.currency_conversion_rate,
@@ -119,17 +114,12 @@ where 1 = 1
             gjl.attribute8 lot_no,
             gjl.attribute9 model
 from 
-     
         xla_ae_headers xah 
         INNER JOIN xla_ae_lines xal
             ON xah.ae_header_id = xal.ae_header_id
             AND xal.application_id = xah.application_id
---        INNER JOIN xla_distribution_links xdl
---            ON  xal.ae_header_id = xdl.ae_header_id
---            AND xal.ae_line_num = xdl.ae_line_num
         INNER JOIN gl_code_combinations gcc
             ON xal.code_combination_id = gcc.code_combination_id
-        -- GL
         LEFT JOIN apps.gl_import_references gir
             ON gir.gl_sl_link_id = xal.gl_sl_link_id
             AND gir.gl_sl_link_table = xal.gl_sl_link_table
@@ -142,14 +132,8 @@ from
                 ON aps.segment1 = gjl.attribute1
 where 1 = 1
         and xah.gl_transfer_status_code = 'N'
-    --    and xah.doc_sequence_value = '70100007716'
         and xah.accounting_date between  TO_DATE (:P_START_DATE, 'yyyy/mm/dd hh24:mi:ss') and TO_DATE (:P_END_DATE, 'yyyy/mm/dd hh24:mi:ss')
---        and   TO_DATE(TO_CHAR (gjh.default_effective_date,'MON-YY'),'MON-YY') BETWEEN    TO_DATE (:P_PERIOD,
---                                                           'MM-YY')
---                                              AND TO_DATE (:P_PERIOD2,
---                                                           'MM-YY')
-        and gcc.segment6 between NVL(:P_ACCOUNT_CODE_FROM,gcc.segment6) AND NVL(:P_ACCOUNT_CODE_TO,gcc.segment6)
+        and gcc.segment6 IN ('63000','66904')
         and nvl(xal.accounted_dr,0) - nvl(xal.accounted_cr,0) <> 0
         )      
-);
-
+) gl_xla_data;
